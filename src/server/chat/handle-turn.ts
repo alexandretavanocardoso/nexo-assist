@@ -88,7 +88,12 @@ export async function handleEmployeeTurn(
     emit(
       error instanceof ChatError
         ? { type: "error", code: error.code, message: error.message, retryable: error.retryable }
-        : { type: "error", code: "internal", message: "Algo deu errado do nosso lado. Tente de novo.", retryable: true },
+        : {
+            type: "error",
+            code: "internal",
+            message: "Algo deu errado do nosso lado. Tente de novo.",
+            retryable: true,
+          },
     );
   } finally {
     emit({ type: "done", conversation: toConversationView(deps.db, getConversation(deps.db, conversation.id)) });
@@ -96,7 +101,7 @@ export async function handleEmployeeTurn(
 }
 
 async function routeInput(deps: ChatDeps, turn: TurnContext, conversation: Conversation, input: ChatInput) {
-  const { db, now } = turn;
+  const { db } = turn;
 
   if (input.kind === "retry") {
     const last = listMessages(db, conversation.id).at(-1);
@@ -138,7 +143,11 @@ async function routeInput(deps: ChatDeps, turn: TurnContext, conversation: Conve
 }
 
 function saveUserMessage(turn: TurnContext, text: string) {
-  const message = addMessage(turn.db, { conversationId: turn.conversationId, role: "user", authorId: turn.employee.id, text }, turn.now);
+  const message = addMessage(
+    turn.db,
+    { conversationId: turn.conversationId, role: "user", authorId: turn.employee.id, text },
+    turn.now,
+  );
   turn.emit({
     type: "user-message",
     message: {
@@ -208,7 +217,11 @@ async function runAgent(deps: ChatDeps, turn: TurnContext, conversation: Convers
   } catch (error) {
     logger.error("agent.turn_failed", { conversationId: conversation.id, error });
     if (error instanceof MissingApiKeyError) throw new ChatError("missing_api_key", error.message);
-    throw new ChatError("agent_unavailable", "O assistente não conseguiu responder agora. Tente de novo em instantes.", true);
+    throw new ChatError(
+      "agent_unavailable",
+      "O assistente não conseguiu responder agora. Tente de novo em instantes.",
+      true,
+    );
   }
 
   const decision = recorder.decision;
@@ -232,8 +245,13 @@ async function runAgent(deps: ChatDeps, turn: TurnContext, conversation: Convers
   };
 
   const finalText =
-    text.trim() || (recorder.blocks.length > 0 ? "" : "Desculpe, não consegui concluir agora. Pode me contar de outro jeito?");
-  addMessage(db, { conversationId: conversation.id, role: "assistant", text: finalText, blocks: recorder.blocks, trace }, now);
+    text.trim() ||
+    (recorder.blocks.length > 0 ? "" : "Desculpe, não consegui concluir agora. Pode me contar de outro jeito?");
+  addMessage(
+    db,
+    { conversationId: conversation.id, role: "assistant", text: finalText, blocks: recorder.blocks, trace },
+    now,
+  );
   logger.info("agent.turn_completed", {
     conversationId: conversation.id,
     intent: trace.intent,
@@ -279,7 +297,8 @@ function escalateIfUnsure(turn: TurnContext, conversationId: string): void {
         understood: last?.understood ?? null,
         action: "Transferir para um analista",
         confidence: 1,
-        rationale: "Regra do service desk: quando o agent não tem segurança sobre o que fazer, a conversa vai para um analista.",
+        rationale:
+          "Regra do service desk: quando o agent não tem segurança sobre o que fazer, a conversa vai para um analista.",
         steps: [],
         metrics: emptyMetrics(),
       },

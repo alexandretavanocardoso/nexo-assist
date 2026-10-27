@@ -1,12 +1,4 @@
-import type {
-  Category,
-  Impact,
-  Priority,
-  SupportLevel,
-  TicketStatus,
-  TicketType,
-  Urgency,
-} from "@/domain/types";
+import type { Category, Impact, Priority, SupportLevel, TicketStatus, TicketType, Urgency } from "@/domain/types";
 import type { ticketEvents, tickets } from "@/server/db/schema";
 
 export type Ticket = typeof tickets.$inferSelect;

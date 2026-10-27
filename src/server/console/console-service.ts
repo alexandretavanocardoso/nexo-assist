@@ -31,20 +31,36 @@ export type ConsoleList = { items: ConsoleListItem[]; counts: Record<ConsoleFilt
 const ONLINE_WINDOW_MS = 5 * 60 * 1000;
 const CLOSED_VISIBLE_MS = 3 * 24 * 60 * 60 * 1000;
 
-export function listConsoleConversations(db: Db, analyst: Employee, filter: ConsoleFilter, query: string, now: Date): ConsoleList {
+export function listConsoleConversations(
+  db: Db,
+  analyst: Employee,
+  filter: ConsoleFilter,
+  query: string,
+  now: Date,
+): ConsoleList {
   const rows = db
     .select({ conversation: conversations, employee: employees })
     .from(conversations)
     .innerJoin(employees, eq(conversations.employeeId, employees.id))
     .orderBy(desc(conversations.lastMessageAt))
     .all()
-    .filter(({ conversation }) => conversation.status !== "closed" || now.getTime() - conversation.lastMessageAt.getTime() < CLOSED_VISIBLE_MS);
+    .filter(
+      ({ conversation }) =>
+        conversation.status !== "closed" || now.getTime() - conversation.lastMessageAt.getTime() < CLOSED_VISIBLE_MS,
+    );
 
   const ids = rows.map((r) => r.conversation.id);
   const allMessages = ids.length
     ? db.select().from(messages).where(inArray(messages.conversationId, ids)).orderBy(messages.createdAt).all()
     : [];
-  const analystNames = new Map(db.select().from(employees).where(eq(employees.role, "analyst")).all().map((a) => [a.id, a.name]));
+  const analystNames = new Map(
+    db
+      .select()
+      .from(employees)
+      .where(eq(employees.role, "analyst"))
+      .all()
+      .map((a) => [a.id, a.name]),
+  );
 
   const items: ConsoleListItem[] = rows.map(({ conversation, employee }) => {
     const history = allMessages.filter((m) => m.conversationId === conversation.id);
@@ -105,10 +121,17 @@ export class ConsoleActionError extends Error {
   }
 }
 
-const analystLabel = (analyst: Employee) => `${analyst.name}${analyst.supportLevel ? ` (Suporte ${analyst.supportLevel})` : ""}`;
+const analystLabel = (analyst: Employee) =>
+  `${analyst.name}${analyst.supportLevel ? ` (Suporte ${analyst.supportLevel})` : ""}`;
 
 /** Analista assume: o agent fica pausado e o chamado relacionado passa a "Em andamento". */
-export async function assumeConversation(db: Db, tickets: TicketService, analyst: Employee, conversationId: string, now: Date) {
+export async function assumeConversation(
+  db: Db,
+  tickets: TicketService,
+  analyst: Employee,
+  conversationId: string,
+  now: Date,
+) {
   const conversation = applyEvent(db, conversationId, "assume", now, { assignedAnalystId: analyst.id });
   addMessage(db, { conversationId, role: "system", text: `${analyst.name} assumiu · agent pausado` }, now);
 
@@ -116,7 +139,8 @@ export async function assumeConversation(db: Db, tickets: TicketService, analyst
   if (ticketNumber) {
     const actor: Actor = { id: analyst.id, role: "analyst" };
     const result = await withRetry(() => tickets.markInService(actor, ticketNumber, analyst.name));
-    if (!result.ok) logger.warn("console.mark_in_service_failed", { conversationId, ticketNumber, error: result.error });
+    if (!result.ok)
+      logger.warn("console.mark_in_service_failed", { conversationId, ticketNumber, error: result.error });
   }
 }
 
@@ -137,4 +161,3 @@ export function sendAnalystMessage(db: Db, analyst: Employee, conversationId: st
   }
   addMessage(db, { conversationId, role: "analyst", authorId: analyst.id, text }, now);
 }
-

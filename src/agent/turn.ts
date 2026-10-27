@@ -56,7 +56,13 @@ export class TurnRecorder {
     const startedAt = Date.now();
     if (labels.length > 0) this.emit({ type: "step", step: { id, labels, status: "running" } });
     return {
-      finish: (result: { output: unknown; status: "ok" | "error"; attempts: number; rules: string[]; labels?: string[] }) => {
+      finish: (result: {
+        output: unknown;
+        status: "ok" | "error";
+        attempts: number;
+        rules: string[];
+        labels?: string[];
+      }) => {
         const finalLabels = result.labels ?? labels;
         this.steps.push({
           id,
@@ -70,7 +76,10 @@ export class TurnRecorder {
           rules: result.rules,
         });
         if (finalLabels.length > 0 || labels.length > 0) {
-          this.emit({ type: "step", step: { id, labels: finalLabels, status: result.status === "ok" ? "done" : "error" } });
+          this.emit({
+            type: "step",
+            step: { id, labels: finalLabels, status: result.status === "ok" ? "done" : "error" },
+          });
         }
       },
     };

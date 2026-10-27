@@ -30,7 +30,12 @@ export function scriptedModel(steps: ScriptStep[]) {
         parts.push({ type: "text-end", id: `t${index}` });
       }
       (step.toolCalls ?? []).forEach((call, i) => {
-        parts.push({ type: "tool-call", toolCallId: `call-${index}-${i}`, toolName: call.name, input: JSON.stringify(call.input) });
+        parts.push({
+          type: "tool-call",
+          toolCallId: `call-${index}-${i}`,
+          toolName: call.name,
+          input: JSON.stringify(call.input),
+        });
       });
       parts.push({
         type: "finish",

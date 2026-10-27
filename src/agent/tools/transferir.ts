@@ -19,7 +19,9 @@ export const transferirParaAnalista = defineNexoTool({
       .string()
       .min(30)
       .max(600)
-      .describe("Resumo para o analista não perguntar tudo de novo: problema, o que já foi verificado, chamado e prazo."),
+      .describe(
+        "Resumo para o analista não perguntar tudo de novo: problema, o que já foi verificado, chamado e prazo.",
+      ),
     numero: ticketNumberSchema.optional().describe("Chamado relacionado, se houver."),
   }),
   labels: () => ["transferiu para um analista"],

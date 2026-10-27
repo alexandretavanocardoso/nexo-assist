@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:reset": "tsx --env-file-if-exists=.env scripts/db-reset.ts",
-    "evals": "tsx --env-file-if-exists=.env evals/run-evals.ts"
+    "evals": "tsx --env-file-if-exists=.env evals/run-evals.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@mastra/core": "^1.79.0",
@@ -34,6 +36,8 @@
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "prettier": "^3.9.10",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",

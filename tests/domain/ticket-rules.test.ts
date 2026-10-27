@@ -20,8 +20,14 @@ const ticket = (
 ) => ({ number, title, description, category, status, resolvedAt });
 
 const ANA_TICKETS = [
-  ticket("INC-20311", "Notebook lento após atualização do Windows", "Hardware", "Aguardando analista", null,
-    "Lentidão geral desde a atualização do Windows. Reiniciar e rodar o diagnóstico não resolveu."),
+  ticket(
+    "INC-20311",
+    "Notebook lento após atualização do Windows",
+    "Hardware",
+    "Aguardando analista",
+    null,
+    "Lentidão geral desde a atualização do Windows. Reiniciar e rodar o diagnóstico não resolveu.",
+  ),
   ticket("REQ-10442", "Segundo monitor para home office", "Hardware", "Aprovado"),
   ticket("INC-20150", "Senha do SAP bloqueada", "Acesso", "Resolvido", brt("2026-10-23T10:15")),
   ticket("INC-19877", "Outlook não sincroniza no celular", "E-mail", "Resolvido", brt("2026-09-02T11:00")),

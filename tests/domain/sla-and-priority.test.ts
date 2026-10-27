@@ -68,7 +68,10 @@ describe("prazos (SLA) e chamado vencido", () => {
   });
 
   it("chamado resolvido não tem prazo nem fica vencido", () => {
-    const sla = getSlaStatus({ priority: "Alta", status: "Resolvido", lastServiceUpdateAt: brt("2026-10-01T09:00") }, NOW);
+    const sla = getSlaStatus(
+      { priority: "Alta", status: "Resolvido", lastServiceUpdateAt: brt("2026-10-01T09:00") },
+      NOW,
+    );
     expect(sla).toMatchObject({ dueAt: null, overdue: false });
   });
 });

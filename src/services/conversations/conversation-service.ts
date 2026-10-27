@@ -192,7 +192,12 @@ export function findPendingDraft(db: Db, conversationId: string): DraftView | un
 }
 
 /** Busca um rascunho garantindo que é do funcionário e da conversa informados. */
-export function findOwnedDraft(db: Db, draftId: string, employeeId: string, conversationId: string): DraftView | undefined {
+export function findOwnedDraft(
+  db: Db,
+  draftId: string,
+  employeeId: string,
+  conversationId: string,
+): DraftView | undefined {
   const row = db
     .select()
     .from(drafts)

@@ -18,13 +18,18 @@ export const listarMeusChamados = defineNexoTool({
     "'busca'), para checar duplicidade antes de abrir chamado e para achar chamado a complementar ou reabrir. " +
     "Use mostrar_selecao=true quando houver vários e o funcionário precisar escolher.",
   inputSchema: z.object({
-    situacao: z.enum(["abertos", "todos"]).default("abertos").describe("'todos' inclui os resolvidos (para reabertura)."),
+    situacao: z
+      .enum(["abertos", "todos"])
+      .default("abertos")
+      .describe("'todos' inclui os resolvidos (para reabertura)."),
     busca: z.string().max(200).optional().describe("Descrição do problema para ordenar por semelhança."),
     mostrar_selecao: z.boolean().default(false).describe("Mostra a lista para o funcionário escolher um chamado."),
   }),
   labels: () => ["consultou seus chamados"],
   run: async ({ situacao, busca, mostrar_selecao }, turn) => {
-    const result = await callTickets(turn, () => turn.tickets.listMine(turn.actor, situacao === "abertos" ? "open" : "all"));
+    const result = await callTickets(turn, () =>
+      turn.tickets.listMine(turn.actor, situacao === "abertos" ? "open" : "all"),
+    );
     if (!result.ok) return { ...ticketErrorOutput(result.error, result.attempts), attempts: result.attempts };
 
     let views = result.value.map((ticket) => toTicketView(ticket, turn.now));
@@ -41,7 +46,11 @@ export const listarMeusChamados = defineNexoTool({
     if (mostrar_selecao && views.length > 1) turn.recorder.addBlock({ type: "ticket-selector", tickets: views });
 
     return {
-      output: { total: views.length, chamados: views.map((v) => ticketForModel(v, turn.now)), ...(note ? { observacao: note } : {}) },
+      output: {
+        total: views.length,
+        chamados: views.map((v) => ticketForModel(v, turn.now)),
+        ...(note ? { observacao: note } : {}),
+      },
       attempts: result.attempts,
       rules: ["Privacidade: só aparecem os chamados abertos por você"],
     };
@@ -58,7 +67,11 @@ export const consultarChamado = defineNexoTool({
   run: async ({ numero }, turn) => {
     const result = await callTickets(turn, () => turn.tickets.getMine(turn.actor, numero));
     if (!result.ok) {
-      return { ...ticketErrorOutput(result.error, result.attempts), attempts: result.attempts, labels: [`procurou o ${numero}`] };
+      return {
+        ...ticketErrorOutput(result.error, result.attempts),
+        attempts: result.attempts,
+        labels: [`procurou o ${numero}`],
+      };
     }
     const { ticket, events } = result.value;
     const view = toTicketView(ticket, turn.now, events);
@@ -71,7 +84,9 @@ export const consultarChamado = defineNexoTool({
       attempts: result.attempts,
       rules: [
         `Prazo da prioridade ${view.priority}: ${view.slaLabel}, contado da última ação do service desk`,
-        view.overdue ? "Passou do prazo: o chamado está vencido (pode ser transferido a um analista)" : "Dentro do prazo",
+        view.overdue
+          ? "Passou do prazo: o chamado está vencido (pode ser transferido a um analista)"
+          : "Dentro do prazo",
       ],
     };
   },

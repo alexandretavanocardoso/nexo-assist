@@ -22,13 +22,21 @@ export const prepararRascunhoChamado = defineNexoTool({
     "o que aconteceu, quem é afetado (impacto) e se há algo parado ou compromisso em risco (urgência). " +
     "A prioridade e o prazo são calculados pelas regras do service desk; a ferramenta também barra duplicidade.",
   inputSchema: z.object({
-    tipo: ticketTypeSchema.describe("INC = algo parou ou não funciona; REQ = pedido de acesso, equipamento ou software."),
-    titulo: z.string().min(5).max(90).describe("Título curto e específico, ex.: 'VPN não conecta no notebook — erro 809'."),
+    tipo: ticketTypeSchema.describe(
+      "INC = algo parou ou não funciona; REQ = pedido de acesso, equipamento ou software.",
+    ),
+    titulo: z
+      .string()
+      .min(5)
+      .max(90)
+      .describe("Título curto e específico, ex.: 'VPN não conecta no notebook — erro 809'."),
     descricao: z
       .string()
       .min(20)
       .max(800)
-      .describe("Descrição completa para o analista não precisar perguntar de novo: o que, desde quando, onde, o que já foi tentado, impacto."),
+      .describe(
+        "Descrição completa para o analista não precisar perguntar de novo: o que, desde quando, onde, o que já foi tentado, impacto.",
+      ),
     categoria: categorySchema,
     impacto: impactSchema.describe("pessoa = só o funcionário; equipe = a equipe dele; empresa = várias áreas."),
     urgencia: urgencySchema.describe(
@@ -43,7 +51,11 @@ export const prepararRascunhoChamado = defineNexoTool({
   run: async (input, turn) => {
     const result = await callTickets(turn, () => turn.tickets.listMine(turn.actor, "all"));
     if (!result.ok) {
-      return { ...ticketErrorOutput(result.error, result.attempts), attempts: result.attempts, labels: ["verificou duplicidade"] };
+      return {
+        ...ticketErrorOutput(result.error, result.attempts),
+        attempts: result.attempts,
+        labels: ["verificou duplicidade"],
+      };
     }
 
     const check = checkDuplicates(

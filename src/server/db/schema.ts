@@ -1,16 +1,7 @@
 import { index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import type { DecisionTrace } from "@/agent/trace";
 import type { ConversationStatus } from "@/domain/conversation-state";
-import type {
-  Category,
-  Impact,
-  Priority,
-  Role,
-  SupportLevel,
-  TicketStatus,
-  TicketType,
-  Urgency,
-} from "@/domain/types";
+import type { Category, Impact, Priority, Role, SupportLevel, TicketStatus, TicketType, Urgency } from "@/domain/types";
 import type { DraftPayload, Handoff, UiBlock } from "@/services/conversations/types";
 
 const timestamp = (name: string) => integer(name, { mode: "timestamp_ms" });

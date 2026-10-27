@@ -28,7 +28,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     id: "KB-003",
     title: "Trocar ou redefinir a senha da rede",
     body:
-      "A senha da rede expira a cada 90 dias. Para trocar, pressione Ctrl+Alt+Del e escolha \"Alterar senha\". " +
+      'A senha da rede expira a cada 90 dias. Para trocar, pressione Ctrl+Alt+Del e escolha "Alterar senha". ' +
       "Se esqueceu a senha, use o portal de autoatendimento de senha pelo celular cadastrado. " +
       "A nova senha precisa ter 12 caracteres e não pode repetir as últimas 5.",
     tags: ["senha", "rede", "windows", "expirou", "esqueci", "login", "redefinir"],
@@ -55,7 +55,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     title: "Computador lento",
     body:
       "Reinicie o computador (não apenas bloqueie a tela), feche abas e programas que não estiver usando e rode o " +
-      "\"Diagnóstico Nexo\" pelo portal de softwares. Se continuar lento depois disso, abra um chamado de Hardware " +
+      '"Diagnóstico Nexo" pelo portal de softwares. Se continuar lento depois disso, abra um chamado de Hardware ' +
       "informando desde quando acontece.",
     tags: ["lento", "lentidão", "travando", "notebook", "computador", "desempenho", "atualização"],
   },
@@ -71,8 +71,8 @@ export const HELP_ARTICLES: HelpArticle[] = [
     id: "KB-008",
     title: "Wi-Fi de visitantes",
     body:
-      "A rede de visitantes é a \"Nexo-Visitantes\". A senha muda toda segunda-feira e fica com a recepção de cada andar. " +
-      "Funcionários devem usar a rede \"Nexo-Corp\", que conecta automaticamente com o login da rede.",
+      'A rede de visitantes é a "Nexo-Visitantes". A senha muda toda segunda-feira e fica com a recepção de cada andar. ' +
+      'Funcionários devem usar a rede "Nexo-Corp", que conecta automaticamente com o login da rede.',
     tags: ["wifi", "wi-fi", "visitante", "internet", "rede sem fio", "senha"],
   },
 ];

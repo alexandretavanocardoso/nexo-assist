@@ -16,7 +16,8 @@ const loginSchema = z.object({
 export const POST = route(async (request: Request) => {
   const { email, remember } = await parseBody(request, loginSchema);
   const user = findEmployeeByEmail(getDb(), email);
-  if (!user) throw new HttpError(401, "invalid_credentials", "E-mail não encontrado. Use um e-mail corporativo da Nexo.");
+  if (!user)
+    throw new HttpError(401, "invalid_credentials", "E-mail não encontrado. Use um e-mail corporativo da Nexo.");
   await createSession(user.id, remember);
   logger.info("auth.login", { userId: user.id, role: user.role });
   return NextResponse.json({ redirectTo: user.role === "analyst" ? "/console" : "/atendimento" });

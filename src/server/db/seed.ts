@@ -51,7 +51,14 @@ export function seedDatabase(db: Db, now: Date): boolean {
         .run();
       for (const event of seed.events) {
         tx.insert(ticketEvents)
-          .values({ id: randomUUID(), ticketId: id, kind: event.kind, author: event.author, text: event.text, createdAt: resolveTime(event.at, now) })
+          .values({
+            id: randomUUID(),
+            ticketId: id,
+            kind: event.kind,
+            author: event.author,
+            text: event.text,
+            createdAt: resolveTime(event.at, now),
+          })
           .run();
       }
     }

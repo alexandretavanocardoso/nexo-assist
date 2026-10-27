@@ -35,7 +35,11 @@ describe("turno do agent (modelo roteirizado)", () => {
     expect(answer.text).toContain("vencido");
     expect(answer.trace?.intent).toBe("consulta");
     expect(answer.trace?.confidence).toBe(0.9);
-    expect(answer.trace?.steps.map((s) => s.tool)).toEqual(["registrar_decisao", "listar_meus_chamados", "consultar_chamado"]);
+    expect(answer.trace?.steps.map((s) => s.tool)).toEqual([
+      "registrar_decisao",
+      "listar_meus_chamados",
+      "consultar_chamado",
+    ]);
     const card = answer.blocks.find((b) => b.type === "ticket-card");
     expect(card?.type === "ticket-card" && card.ticket).toMatchObject({ number: "INC-20311", overdue: true });
     expect(t.events.some((e) => e.type === "step" && e.step.labels.includes("consultou seus chamados"))).toBe(true);
@@ -77,7 +81,8 @@ describe("turno do agent (modelo roteirizado)", () => {
             input: {
               tipo: "INC",
               titulo: "VPN não conecta no notebook — erro 809",
-              descricao: "Desde ontem o notebook (Windows 11) não conecta na VPN, erro 809. Reunião com cliente às 14h.",
+              descricao:
+                "Desde ontem o notebook (Windows 11) não conecta na VPN, erro 809. Reunião com cliente às 14h.",
               categoria: "Rede e VPN",
               impacto: "pessoa",
               urgencia: "compromisso_hoje",
@@ -90,8 +95,13 @@ describe("turno do agent (modelo roteirizado)", () => {
     await t.send({ kind: "message", text: "minha VPN não conecta, erro 809, tenho reunião às 14h" });
 
     const draftBlock = t.lastAnswer().blocks.find((b) => b.type === "draft");
-    expect(draftBlock?.type === "draft" && draftBlock.draft.payload).toMatchObject({ kind: "create", priority: "Alta" });
-    expect((await t.service.listMine({ id: "e-ana", role: "employee" }, "open")).some((x) => x.title.includes("VPN"))).toBe(false);
+    expect(draftBlock?.type === "draft" && draftBlock.draft.payload).toMatchObject({
+      kind: "create",
+      priority: "Alta",
+    });
+    expect(
+      (await t.service.listMine({ id: "e-ana", role: "employee" }, "open")).some((x) => x.title.includes("VPN")),
+    ).toBe(false);
 
     const modelCalls = t.scripted.calls.length;
     await t.send({ kind: "message", text: "Sim, pode criar" });
@@ -99,7 +109,10 @@ describe("turno do agent (modelo roteirizado)", () => {
     const answer = t.lastAnswer();
     expect(answer.text).toContain("INC-20520");
     expect(answer.trace).toMatchObject({ source: "server", intent: "confirmacao", confidence: 1 });
-    const draft = t.conversation().messages.flatMap((m) => m.blocks).find((b) => b.type === "draft");
+    const draft = t
+      .conversation()
+      .messages.flatMap((m) => m.blocks)
+      .find((b) => b.type === "draft");
     expect(draft?.type === "draft" && draft.draft.status).toBe("committed");
   });
 
@@ -139,7 +152,8 @@ describe("turno do agent (modelo roteirizado)", () => {
             input: {
               tipo: "INC",
               titulo: "Sistema de faturamento fora do ar para o Financeiro",
-              descricao: "Ninguém da equipe financeira consegue emitir notas fiscais no sistema de faturamento desde 9h.",
+              descricao:
+                "Ninguém da equipe financeira consegue emitir notas fiscais no sistema de faturamento desde 9h.",
               categoria: "Software",
               impacto: "equipe",
               urgencia: "parado",
@@ -166,7 +180,13 @@ describe("turno do agent (modelo roteirizado)", () => {
       {
         toolCalls: [
           decide("transferencia"),
-          { name: "transferir_para_analista", input: { motivo: "pedido_do_funcionario", resumo: "Ana pediu para falar com um analista sobre o notebook lento (INC-20311)." } },
+          {
+            name: "transferir_para_analista",
+            input: {
+              motivo: "pedido_do_funcionario",
+              resumo: "Ana pediu para falar com um analista sobre o notebook lento (INC-20311).",
+            },
+          },
         ],
       },
       { text: "Encaminhei para o Suporte N1." },

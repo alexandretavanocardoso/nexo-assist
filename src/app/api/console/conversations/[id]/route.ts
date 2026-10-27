@@ -67,7 +67,11 @@ export const POST = route(async (request: Request, { params }: Context) => {
     if (body.action === "message") sendAnalystMessage(db, analyst, id, body.text, now);
   } catch (error) {
     if (error instanceof InvalidTransitionError || error instanceof ConsoleActionError) {
-      throw new HttpError(409, "invalid_state", error instanceof ConsoleActionError ? error.message : "A conversa mudou de estado. Atualize a tela.");
+      throw new HttpError(
+        409,
+        "invalid_state",
+        error instanceof ConsoleActionError ? error.message : "A conversa mudou de estado. Atualize a tela.",
+      );
     }
     throw error;
   }

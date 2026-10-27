@@ -22,7 +22,10 @@ export function estimateCostUsd(
   const price = PRICING[modelId];
   if (!price) return 0;
   const uncached = Math.max(0, usage.inputTokens - usage.cachedInputTokens);
-  return (uncached * price.input + usage.cachedInputTokens * price.cachedInput + usage.outputTokens * price.output) / 1_000_000;
+  return (
+    (uncached * price.input + usage.cachedInputTokens * price.cachedInput + usage.outputTokens * price.output) /
+    1_000_000
+  );
 }
 
 export class MissingApiKeyError extends Error {

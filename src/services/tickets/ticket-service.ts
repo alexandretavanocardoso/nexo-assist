@@ -110,7 +110,10 @@ export class TicketService {
       if (!check.allowed) throw new TicketRuleError(check.reason);
       const now = this.clock();
       this.db.update(tickets).set({ updatedAt: now }).where(eq(tickets.id, ticket.id)).run();
-      this.db.insert(ticketEvents).values(event(ticket.id, "comment", "employee", text, now)).run();
+      this.db
+        .insert(ticketEvents)
+        .values(event(ticket.id, "comment", "employee", text, now))
+        .run();
       return { ...ticket, updatedAt: now };
     });
   }
@@ -129,7 +132,10 @@ export class TicketService {
         updatedAt: now,
       };
       this.db.update(tickets).set(changes).where(eq(tickets.id, ticket.id)).run();
-      this.db.insert(ticketEvents).values(event(ticket.id, "reopened", "employee", `Reaberto: ${reason}`, now)).run();
+      this.db
+        .insert(ticketEvents)
+        .values(event(ticket.id, "reopened", "employee", `Reaberto: ${reason}`, now))
+        .run();
       return { ...ticket, ...changes };
     });
   }
@@ -181,7 +187,10 @@ export class TicketService {
         .set({ status: "Em andamento", lastServiceUpdateAt: now, updatedAt: now })
         .where(eq(tickets.id, ticket.id))
         .run();
-      this.db.insert(ticketEvents).values(event(ticket.id, "status", "analyst", `Assumido por ${analystName}`, now)).run();
+      this.db
+        .insert(ticketEvents)
+        .values(event(ticket.id, "status", "analyst", `Assumido por ${analystName}`, now))
+        .run();
     });
   }
 
@@ -198,7 +207,12 @@ export class TicketService {
   }
 
   private eventsOf(ticketId: string): TicketEvent[] {
-    return this.db.select().from(ticketEvents).where(eq(ticketEvents.ticketId, ticketId)).orderBy(asc(ticketEvents.createdAt)).all();
+    return this.db
+      .select()
+      .from(ticketEvents)
+      .where(eq(ticketEvents.ticketId, ticketId))
+      .orderBy(asc(ticketEvents.createdAt))
+      .all();
   }
 }
 

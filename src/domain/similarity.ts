@@ -15,10 +15,7 @@ const STOPWORDS = new Set(
 );
 
 export function normalize(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "");
+  return text.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
 }
 
 /** Radicais das palavras relevantes do texto. Números (ex.: "809") são mantidos inteiros. */

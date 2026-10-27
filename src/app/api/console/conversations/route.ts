@@ -12,6 +12,9 @@ const querySchema = z.object({
 export const GET = route(async (request: Request) => {
   const analyst = await requireUser("analyst");
   const params = new URL(request.url).searchParams;
-  const { filter, q } = querySchema.parse({ filter: params.get("filter") ?? undefined, q: params.get("q") ?? undefined });
+  const { filter, q } = querySchema.parse({
+    filter: params.get("filter") ?? undefined,
+    q: params.get("q") ?? undefined,
+  });
   return NextResponse.json(listConsoleConversations(getDb(), analyst, filter, q, new Date()));
 });

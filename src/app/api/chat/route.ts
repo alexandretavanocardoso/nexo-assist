@@ -25,7 +25,8 @@ const chatSchema = z.union([
 
 function toChatInput(body: z.infer<typeof chatSchema>): ChatInput {
   if ("text" in body) return { kind: "message", text: body.text };
-  if ("action" in body) return { kind: body.action === "confirm" ? "confirm-draft" : "cancel-draft", draftId: body.draftId };
+  if ("action" in body)
+    return { kind: body.action === "confirm" ? "confirm-draft" : "cancel-draft", draftId: body.draftId };
   return { kind: "retry" };
 }
 
@@ -34,7 +35,11 @@ export const POST = route(async (request: Request) => {
   const employee = await requireUser("employee");
   const input = toChatInput(await parseBody(request, chatSchema));
   if (input.kind !== "confirm-draft" && input.kind !== "cancel-draft" && !allowRequest(employee.id)) {
-    throw new HttpError(429, "rate_limited", "Muitas mensagens em pouco tempo. Espere alguns segundos e tente de novo.");
+    throw new HttpError(
+      429,
+      "rate_limited",
+      "Muitas mensagens em pouco tempo. Espere alguns segundos e tente de novo.",
+    );
   }
   const deps = { db: getDb(), tickets: getTicketService(), getAgent: getNexoAgent };
   return sseResponse((emit) => handleEmployeeTurn(deps, employee, input, emit));
