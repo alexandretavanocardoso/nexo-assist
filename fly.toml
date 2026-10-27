@@ -1,0 +1,34 @@
+# Deploy no Fly.io (ver README, seção Deploy). Ajuste o nome do app antes do primeiro deploy.
+app = "nexo-assist"
+primary_region = "gru"
+
+[build]
+
+[env]
+  NEXO_MODEL = "claude-haiku-5-5"
+  NEXO_EFFORT = "low"
+  RATE_LIMIT_PER_MINUTE = "6"
+  DAILY_MESSAGE_LIMIT = "500"
+  TICKETS_OUTAGE_RATE = "0.08"
+
+# SQLite persistente entre reinícios e deploys.
+[[mounts]]
+  source = "nexo_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  # Uma máquina só: o banco é um arquivo local e os limites ficam em memória.
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 50
+    hard_limit = 80
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

@@ -4,7 +4,7 @@ import { getNexoAgent } from "@/agent/nexo-agent";
 import { handleEmployeeTurn, type ChatInput } from "@/server/chat/handle-turn";
 import { getDb } from "@/server/db/client";
 import { HttpError, parseBody, requireUser, route } from "@/server/http";
-import { allowRequest } from "@/server/rate-limit";
+import { allowDailyBudget, allowRequest } from "@/server/rate-limit";
 import { sseResponse } from "@/server/sse";
 import { getOrCreateActiveConversation, toConversationView } from "@/services/conversations/conversation-service";
 import { getTicketService } from "@/services/tickets";
@@ -34,12 +34,16 @@ function toChatInput(body: z.infer<typeof chatSchema>): ChatInput {
 export const POST = route(async (request: Request) => {
   const employee = await requireUser("employee");
   const input = toChatInput(await parseBody(request, chatSchema));
-  if (input.kind !== "confirm-draft" && input.kind !== "cancel-draft" && !allowRequest(employee.id)) {
+  const usesModel = input.kind === "message" || input.kind === "retry";
+  if (usesModel && !allowRequest(employee.id)) {
     throw new HttpError(
       429,
       "rate_limited",
       "Muitas mensagens em pouco tempo. Espere alguns segundos e tente de novo.",
     );
+  }
+  if (usesModel && !allowDailyBudget()) {
+    throw new HttpError(429, "daily_limit", "O limite diário de uso do assistente foi atingido. Tente de novo amanhã.");
   }
   const deps = { db: getDb(), tickets: getTicketService(), getAgent: getNexoAgent };
   return sseResponse((emit) => handleEmployeeTurn(deps, employee, input, emit));
