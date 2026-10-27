@@ -1,7 +1,9 @@
+import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { createNexoAgent } from "@/agent/nexo-agent";
 import type { StreamEvent } from "@/lib/stream-events";
-import { ChatError, handleEmployeeTurn, type ChatInput } from "@/server/chat/handle-turn";
+import { handleEmployeeTurn, type ChatInput } from "@/server/chat/handle-turn";
+import { conversations } from "@/server/db/schema";
 import { findEmployeeById } from "@/services/employees";
 import { getOrCreateActiveConversation, toConversationView } from "@/services/conversations/conversation-service";
 import { createTestTicketService } from "../helpers";
@@ -194,8 +196,10 @@ describe("turno do agent (modelo roteirizado)", () => {
   it("limite de 30 mensagens por sessão", async () => {
     const t = setup([]);
     const conversation = getOrCreateActiveConversation(t.db, "e-ana", t.now);
-    t.db.$client.prepare("update conversations set user_message_count = 30 where id = ?").run(conversation.id);
-    await expect(t.send({ kind: "message", text: "oi" })).rejects.toThrow(ChatError);
+    t.db.update(conversations).set({ userMessageCount: 30 }).where(eq(conversations.id, conversation.id)).run();
+    await t.send({ kind: "message", text: "oi" });
+    expect(t.events).toContainEqual(expect.objectContaining({ type: "error", code: "message_limit" }));
+    expect(t.scripted.calls).toHaveLength(0);
   });
 
   it("baixa confiança duas vezes seguidas transfere automaticamente", async () => {

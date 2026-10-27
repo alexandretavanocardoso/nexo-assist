@@ -83,6 +83,13 @@ export async function handleEmployeeTurn(
 
   try {
     await routeInput(deps, turn, conversation, input);
+  } catch (error) {
+    if (!(error instanceof ChatError)) logger.error("chat.turn_failed", { conversationId: conversation.id, error });
+    emit(
+      error instanceof ChatError
+        ? { type: "error", code: error.code, message: error.message, retryable: error.retryable }
+        : { type: "error", code: "internal", message: "Algo deu errado do nosso lado. Tente de novo.", retryable: true },
+    );
   } finally {
     emit({ type: "done", conversation: toConversationView(deps.db, getConversation(deps.db, conversation.id)) });
   }
@@ -245,7 +252,10 @@ async function runAgent(deps: ChatDeps, turn: TurnContext, conversation: Convers
 
 /** Regra de baixa segurança: duas respostas seguidas com confiança baixa → analista. */
 function escalateIfUnsure(turn: TurnContext, conversationId: string): void {
-  const answers = listMessages(turn.db, conversationId).filter((m) => m.role === "assistant" && m.trace?.source === "agent");
+  // Só conta o que veio depois do último evento de sistema (ex.: analista devolveu a conversa).
+  const history = listMessages(turn.db, conversationId);
+  const lastSystem = history.findLastIndex((m) => m.role === "system");
+  const answers = history.slice(lastSystem + 1).filter((m) => m.role === "assistant" && m.trace?.source === "agent");
   if (!shouldEscalateForLowConfidence(answers.map((m) => m.confidence))) return;
 
   const last = answers.at(-1)?.trace;
