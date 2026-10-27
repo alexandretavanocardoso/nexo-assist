@@ -74,7 +74,7 @@ export function ChatApp({ initialConversation }: { initialConversation: Conversa
   return (
     <Shell
       conversation={conversation}
-      onNewConversation={conversation.messages.length > 0 ? chat.startNewConversation : undefined}
+      onNewConversation={withAgent && conversation.messages.length > 0 ? chat.startNewConversation : undefined}
     >
       <div ref={scrollRef} className="flex-1 scrollbar-thin overflow-y-auto">
         <div className="mx-auto flex min-h-full w-full max-w-[1040px] flex-col justify-end gap-5 px-6 pt-7 pb-1 lg:px-[120px] xl:px-[200px]">
@@ -110,6 +110,9 @@ export function ChatApp({ initialConversation }: { initialConversation: Conversa
               ? `${conversation.assignedAnalyst?.name ?? "Um analista"} está atendendo você. O assistente está pausado.`
               : `Transferida para o Suporte ${handoff.level}. Um analista fala com você por aqui até ${formatDue(new Date(handoff.contactDueAt), new Date())}. O assistente está pausado.`}
           </p>
+        )}
+        {chat.info && conversation.messages.length === 0 && (
+          <p className="bg-desk text-ink-2 rounded-lg px-3 py-2 text-[13px]">{chat.info}</p>
         )}
         {chat.loadError && (
           <p className="bg-desk text-ink-2 flex items-center gap-2 rounded-lg px-3 py-2 text-[13px]">

@@ -19,12 +19,19 @@ export function useChat(initialConversation: ConversationView) {
   const [pending, setPending] = useState<PendingAnswer | null>(null);
   const [error, setError] = useState<ChatErrorState | null>(null);
   const [busy, setBusy] = useState(false);
+  const [info, setInfo] = useState<string | null>(null);
   const busyRef = useRef(false);
 
   const load = useCallback(async () => {
     try {
       const data = await requestJson<{ conversation: ConversationView }>("/api/chat");
-      setConversation(data.conversation);
+      setConversation((current) => {
+        // O analista encerrou: o servidor já devolve uma conversa nova.
+        if (current.id !== data.conversation.id) {
+          setInfo("O atendimento com o analista foi encerrado. Se precisar de algo mais, é só escrever.");
+        }
+        return data.conversation;
+      });
       setLoadError(null);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Não foi possível carregar a conversa.");
@@ -128,6 +135,7 @@ export function useChat(initialConversation: ConversationView) {
   return {
     conversation,
     loadError,
+    info,
     pending,
     error,
     busy,

@@ -37,6 +37,8 @@ export function ConsoleApp({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // Incrementado depois de cada ação para atualizar a lista na hora.
+  const [listVersion, setListVersion] = useState(0);
 
   // Lista de conversas (atualiza sozinha).
   useEffect(() => {
@@ -51,7 +53,7 @@ export function ConsoleApp({
       active = false;
       clearInterval(timer);
     };
-  }, [filter, query]);
+  }, [filter, query, listVersion]);
 
   const loadDetail = useCallback(async (id: string) => {
     const data = await requestJson<Detail>(`/api/console/conversations/${id}`);
@@ -87,6 +89,7 @@ export function ConsoleApp({
     try {
       await requestJson(`/api/console/conversations/${selectedId}`, { method: "POST", body: JSON.stringify(body) });
       await loadDetail(selectedId);
+      setListVersion((v) => v + 1);
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível concluir a ação.");
