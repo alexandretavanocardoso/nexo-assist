@@ -31,7 +31,7 @@ O funcionário descreve o problema com as próprias palavras. A cada mensagem, o
 **Requisitos:** Node.js 22.13 ou mais recente (exigência do Mastra) e uma chave da API da Anthropic.
 
 ```bash
-git clone https://github.com/<seu-usuario>/nexo-assist.git
+git clone https://github.com/alexandretavanocardoso/nexo-assist.git
 cd nexo-assist
 npm install
 cp .env.example .env        # no Windows (PowerShell): Copy-Item .env.example .env
